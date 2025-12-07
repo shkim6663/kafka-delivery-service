@@ -78,6 +78,14 @@ public class DeliveryCacheService {
                 stringRedisTemplate.opsForHash().entries(key);
 
             if (map.isEmpty()) {
+                Delivery delivery = deliveryRepository.findById(userId).orElseThrow();
+                responses.add(new DeliveryResponse(
+                    delivery.getId(),
+                    delivery.getOrderId(),
+                    delivery.getProductId(),
+                    delivery.getStatus(),
+                    delivery.getStatusUpdatedAt().toString()
+                ));
                 continue;
             }
 
