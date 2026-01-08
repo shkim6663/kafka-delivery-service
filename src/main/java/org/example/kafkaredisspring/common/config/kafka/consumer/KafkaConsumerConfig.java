@@ -104,13 +104,27 @@ public class KafkaConsumerConfig {
         );
     }
 
-    @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, PaymentCompletedEvent> deliveryKafkaListenerContainerFactory() {
+	/**
+	 * 배송처리를 위한 kafka 컨테이너 빈 설정입니다.
+	 * 기존의 단일 스레드 방식이 아닌 멀티 스레드를 통한 병렬 처리가 가능하도록 개선하였습니다.
+	 * @return 설정이 완료된  ConcurrentKafkaListenerContainerFactory 객체
+	 */
+	@Bean
+	public ConcurrentKafkaListenerContainerFactory<String, PaymentCompletedEvent> deliveryKafkaListenerContainerFactory() {
 
-        ConcurrentKafkaListenerContainerFactory<String, PaymentCompletedEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
+		ConcurrentKafkaListenerContainerFactory<String, PaymentCompletedEvent> factory =
+			new ConcurrentKafkaListenerContainerFactory<>();
 
-        factory.setConsumerFactory(deliveryConsumerFactory());
-        return factory;
-    }
+		factory.setConsumerFactory(deliveryConsumerFactory());
+
+		/**
+		 * 개선 포인트 컨슈머 병렬 처리 설정
+		 * 설정된 3만큼의 컨슈머 스레드가 생성되어 토픽과 파티션 1:1 매핑 처리
+		 * 대량의 결제 완료 이벤트 발생시, 3개의 스레드가 동시에 배송 데이터를 생성하므로 지연시간이 단축됩니다.
+		 */
+		factory.setConcurrency(3);
+
+		return factory;
+	}
 
 }
