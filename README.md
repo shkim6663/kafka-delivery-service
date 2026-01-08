@@ -72,7 +72,8 @@ paymentCompletedEventKafkaTemplate.send(TOPIC_PAYMENT_COMPLETED, key, event);
 ---
 
 ### 4. 구조 개선의 효율성 및 기술적 근거 (과제 4)
-![컨슈머 그룹 증빙](images/과제%203.png)
+<img width="1698" height="955" alt="과제 3" src="https://github.com/user-attachments/assets/03f8165f-6950-40e4-95ee-df1b5c3af585" />
+
 <img width="1462" height="546" alt="postman message" src="https://github.com/user-attachments/assets/baabc85f-025b-4cea-bf50-35d8af649f2d" />
 
 - **처리량 최적화**: 3개의 파티션과 3개의 컨슈머 스레드를 맞춤으로써, 대량의 결제 이벤트를 지연 없이 병렬로 처리합니다.
