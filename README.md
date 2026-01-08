@@ -34,15 +34,14 @@
 ![Architecture](images/kafka_consumer_details.png)
 ```java
 /**
-	 * 결제 완료 토픽을 생성하고 파티션 구조를 정의 합니다
-	 * 파티션 개수 확장 (1->3)
-	 * 데이터 처리를 병렬화
-	 * 늘어난 파티션 수만큼 컨슈머 스레드를 할당하여 처리량 증가
-	 * @return 3개의 파티션과 1개의 복제본으로 구성
-	 */
+* 결제 완료 토픽을 생성하고 파티션 구조를 정의 합니다
+* 파티션 개수 확장 (1->3)
+* 데이터 처리를 병렬화
+* 늘어난 파티션 수만큼 컨슈머 스레드를 할당하여 처리량 증가
+* @return 3개의 파티션과 1개의 복제본으로 구성
+*/
 @Bean
 public NewTopic paymentCompletedTopic() {
-// 파티션을 3개로 설정하여 병렬 처리의 기반을 마련함
 return TopicBuilder.name(TOPIC_PAYMENT_COMPLETED)
 .partitions(3)
 .replicas(1)
@@ -56,19 +55,19 @@ return TopicBuilder.name(TOPIC_PAYMENT_COMPLETED)
 
 ```java
 /**
-	 * 배송처리를 위한 kafka 컨테이너 빈 설정입니다.
-	 * 기존의 단일 스레드 방식이 아닌 멀티 스레드를 통한 병렬 처리가 가능하도록 개선하였습니다.
-	 * @return 설정이 완료된  ConcurrentKafkaListenerContainerFactory 객체
-	 */
+* 배송처리를 위한 kafka 컨테이너 빈 설정입니다.
+* 기존의 단일 스레드 방식이 아닌 멀티 스레드를 통한 병렬 처리가 가능하도록 개선하였습니다.
+* @return 설정이 완료된  ConcurrentKafkaListenerContainerFactory 객체
+*/
 @Bean
 public ConcurrentKafkaListenerContainerFactory<String, PaymentCompletedEvent> deliveryKafkaListenerContainerFactory() {
 ConcurrentKafkaListenerContainerFactory<String, PaymentCompletedEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
 factory.setConsumerFactory(deliveryConsumerFactory());
 /**
-		 * 개선 포인트 컨슈머 병렬 처리 설정
-		 * 설정된 3만큼의 컨슈머 스레드가 생성되어 토픽과 파티션 1:1 매핑 처리
-		 * 대량의 결제 완료 이벤트 발생시, 3개의 스레드가 동시에 배송 데이터를 생성하므로 지연시간이 단축됩니다.
-		 */
+* 개선 포인트 컨슈머 병렬 처리 설정
+* 설정된 3만큼의 컨슈머 스레드가 생성되어 토픽과 파티션 1:1 매핑 처리
+* 대량의 결제 완료 이벤트 발생시, 3개의 스레드가 동시에 배송 데이터를 생성하므로 지연시간이 단축됩니다.
+ */
 factory.setConcurrency(3);
 return factory;
 }
@@ -83,9 +82,9 @@ return factory;
 producer.send(event.getOrderId().toString(), event);
 
 /**
-		 * 기존 send (topic, event) -> send(topic, key, event)
-		 * key를 추가함으로써 동일한 주문은 동일한 파티션으로 전송됨
-		 */
+* 기존 send (topic, event) -> send(topic, key, event)
+* key를 추가함으로써 동일한 주문은 동일한 파티션으로 전송됨
+*/
 public void send(String key, PaymentCompletedEvent event) {
 paymentCompletedEventKafkaTemplate.send(TOPIC_PAYMENT_COMPLETED, key, event);
 }
