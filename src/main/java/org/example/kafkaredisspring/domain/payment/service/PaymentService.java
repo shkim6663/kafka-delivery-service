@@ -34,7 +34,6 @@ public class PaymentService {
             .paidAt(paidAt)
             .build();
 
-
-        producer.send(event);
-    }
+		producer.send(event.getOrderId().toString(), event);
+	}
 }
