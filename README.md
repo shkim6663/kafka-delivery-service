@@ -4,7 +4,8 @@
 ---
 
 ## 1. 기존 메시지 처리 구조 분석 및 문제점 (과제 1)
-![Architecture](images/과제 1번.png)
+<img width="642" height="154" alt="과제 1번" src="https://github.com/user-attachments/assets/0c6358fe-104f-476c-b84c-1340564a480b" />
+
 - 구조 특징: 단일 파티션(Partition 0)과 단일 컨슈머 스레드가 1:1로 연결된 구조입니다.
 
 - 병목 지점: 모든 결제 메시지가 하나의 통로로만 처리되어, 이벤트가 급증할 경우 배송 데이터 생성 및 상태 업데이트에 심각한 지연(Lag)이 발생합니다.
@@ -14,7 +15,8 @@
 ---
 
 ## 2. 효율적인 메시지 처리 구조 설계 (과제 2)
-![Architecture](images/과제 2번.png)
+<img width="559" height="317" alt="과제 2번" src="https://github.com/user-attachments/assets/77149801-3082-4f46-9f3b-2c2a9d4cdd8a" />
+
 
 - 병렬 경로 확보: 토픽 파티션을 3개로 확장하여 물리적인 데이터 처리 통로를 3배로 늘렸습니다.
 
@@ -43,7 +45,8 @@ return TopicBuilder.name(TOPIC_PAYMENT_COMPLETED)
 ---
 ### ② 컨슈머 병렬화 설정 (KafkaConsumerConfig.java)
 ![컨슈머 설정 로그](images/concurrenkafka.png)
-![컨슈머 설정 로그](images/kafka consumer.png)
+<img width="887" height="436" alt="kafka consumer" src="https://github.com/user-attachments/assets/1dbcef9d-b91c-44e8-bfcf-7ef75ce8eb2b" />
+
 ```java
 @Bean
 public ConcurrentKafkaListenerContainerFactory<String, PaymentCompletedEvent> deliveryKafkaListenerContainerFactory() {
@@ -70,7 +73,8 @@ paymentCompletedEventKafkaTemplate.send(TOPIC_PAYMENT_COMPLETED, key, event);
 
 ### 4. 구조 개선의 효율성 및 기술적 근거 (과제 4)
 ![컨슈머 그룹 증빙](images/과제%203.png)
-![컨슈머 그룹 증빙](images/postman message.png)
+<img width="1462" height="546" alt="postman message" src="https://github.com/user-attachments/assets/baabc85f-025b-4cea-bf50-35d8af649f2d" />
+
 - **처리량 최적화**: 3개의 파티션과 3개의 컨슈머 스레드를 맞춤으로써, 대량의 결제 이벤트를 지연 없이 병렬로 처리합니다.
 - **순서 보장 검증**: 위 'Messages' 탭 로그와 같이 동일 주문(Key)에 대해 이벤트가 순차적으로 인입됨을 확인하여 데이터 정합성을 보장했습니다.
 - **고가용성 및 모니터링**: UI 대시보드를 통해 3개의 브로커가 모두 'Online' 상태임을 확인하였으며, 장애 시에도 유연한 처리가 가능한 구조임을 입증했습니다. 남은 파티션을 처리할 수 있는 유연한 구조를 갖추었습니다.
